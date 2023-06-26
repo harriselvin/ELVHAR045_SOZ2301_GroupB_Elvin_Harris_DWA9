@@ -1,27 +1,56 @@
+// Importing 'authors' data
 import { authors } from "./data.js";
 
-// preview.js
-export function createPreview(book) {
-    const preview = document.createElement("dl");
-    preview.className = "preview";
-    preview.dataset.id = book.id;
-    preview.dataset.title = book.title;
-    preview.dataset.image = book.image;
-    preview.dataset.subtitle = `${authors[book.author]} (${new Date(book.published).getFullYear()})`;
-    preview.dataset.description = book.description;
-    preview.dataset.genre = book.genres;
-  
-    preview.innerHTML = /*html*/ `
-      <div>
-        <image class='preview__image' src="${book.image}" alt="book pic"/>
-      </div>
-      <div class='preview__info'>
-        <dt class='preview__title'>${book.title}<dt>
-        <dt class='preview__author'> By ${authors[book.author]}</dt>
-      </div>`;
-  
-    return preview;
+// Defining the 'BookPreview' component
+class BookPreview extends HTMLElement {
+  connectedCallback() {
+    const book = JSON.parse(this.getAttribute("data-book"));
+
+    this.innerHTML = `
+      <dl class="preview" data-id="${book.id}" data-title="${
+      book.title
+    }" data-image="${book.image}" data-subtitle="${
+      authors[book.author]
+    } (${new Date(book.published).getFullYear()})" data-description="${
+      book.description
+    }" data-genre="${book.genres}">
+        <div>
+          <img class="preview__image" src="${book.image}" alt="book pic"/>
+        </div>
+        <div class="preview__info">
+          <dt class="preview__title">${book.title}</dt>
+          <dt class="preview__author">By ${authors[book.author]}</dt>
+        </div>
+      </dl>
+    `;
   }
+}
+
+// Defining the 'BookOverlay' component
+class BookOverlay extends HTMLElement {
+  connectedCallback() {
+    this.innerHTML = `
+      <div data-list-active>
+        <h2 data-list-title></h2>
+        <h3 data-list-subtitle></h3>
+        <p data-list-description></p>
+        <img data-list-image/>
+        <img data-list-blur/>
+      </div>
+    `;
+  }
+}
+
+customElements.define("book-preview", BookPreview);
+customElements.define("book-overlay", BookOverlay);
+
+// Creates new instance of 'book-preview'
+export function createPreview(book) {
+  const preview = document.createElement("book-preview");
+  preview.setAttribute("data-book", JSON.stringify(book));
+
+  return preview;
+}
   
   export function showPreviewDetails(event) {
     const overlay = document.querySelector("[data-list-active]");
